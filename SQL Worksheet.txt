@@ -1,0 +1,547 @@
+SELECT commission_pct FROM EMPLOYEES WHERE COMMIsSION_PCT is NULL;
+
+select last_name, salary, nvl(commission_pct, 0) as Zero_COMM, (salary*12) + (salary*12*NVL(commission_pct, 0)) an_sal from employees where salary = 17000;
+
+select first_name, last_name from employees where employee_id = 132;
+
+select * from employees where commission_pct is null;
+
+
+select last_name, salary, commission_pct, nvl2(commission_pct, 'sal+comm', 'sal') income from employees where department_id in (50, 80);
+
+select first_name, length(first_name) "expr1", last_name, length(last_name) "expr2", nullif(length(first_name), length(last_name)) result from employees;
+
+select last_name,coalesce(manager_id, commission_pct, -1) comm from employees order by commission_pct;
+
+/*case function*/
+
+select last_name, job_id, salary, 
+case job_id 
+when 'IT_PROG' then 1.10 * salary 
+when 'ST_CLERK' THEN 1.15*SALARY 
+WHEN 'SA_REP' THEN 1.20*SALARY 
+ELSE 
+SALARY 
+END "REVISED_SALARY" 
+FROM EMPLOYEES;         /* OR USE DECODE FUNCTION */
+
+SELECT LAST_NAME, JOB_ID, SALARY, 
+DECODE(JOB_ID, 'IT_PROG', 1.10*SALARY, 'ST_CLERK', 1.15*SALARY, 'SA_REP', 1.20*SALARY, SALARY) REVISED_SALARY FROM EMPLOYEES;
+
+select last_name, salary, decode (trunc(salary/2000, 0), 0, 0.00, 1, 0.09, 2, 0.20, 3, 0.30, 4, 0.40, 5, 0.42, 6, 0.44, 0.45) Tax_Rate from employees where department_id = 80;
+
+
+/* Group functions
+    AVG
+    Count
+    Max
+    Min
+    Stddev
+    Sum
+    Variance
+*/
+
+select max(salary), min(salary), avg(salary)  from employees;
+
+select count(salary), sum(salary) from employees where department_id = 50;
+
+select count(commission_pct) from employees where department_id = 80;
+
+
+select first_name || last_name as Name from employees where salary > (select avg(salary) from employees);
+
+select count(distinct department_id) from employees;
+
+select avg(Nvl(commission_pct, 0)) from employees;
+
+select department_id, avg(salary) from employees group by department_id order by 1;
+
+select department_id, count(*) from employees group by department_id;
+
+select sum(salary), department_id, job_id from employees group by department_id, job_id order by 2; 
+
+select department_id, max(salary) from employees group by department_id having max(salary) > 10000; 
+
+select max(avg(salary)) from employees group by department_id;
+
+select department_id, department_name, location_id, city from departments natural join locations;
+
+select location_id from locations where city = 'Seattle';
+
+select * from locations;
+
+
+select employees.employee_id, employees.last_name, departments.location_id, department_id from employees Join departments using (department_id);
+
+select e.employee_id, e.last_name, e.department_id, d.department_id, d.location_id
+From employees e Join departments d
+ON (e.department_id = d.department_id);
+
+select e.last_name emp, m.last_name mgr from employees e join employees m on (e.manager_id = m.employee_id) where e.manager_id = 101;
+
+
+select e.employee_id, e.first_name || e.last_name as NAME, e.department_id, d.department_id , d.location_id from employees e join departments d on (e.department_id = d.department_id) and e.manager_id = 149;
+
+select employee_id, city, department_name from employees e join departments d on d.department_id = e.department_id join locations l on d.location_id = l.location_id and l.city = 'Seattle' and d.department_name = 'Executive';
+
+desc employees;
+desc jobs;
+
+select e.last_name, e.department_id, d.department_id name from employees e left outer join departments d on (e.department_id = d.department_id);
+
+select e.last_name, d.department_id, d.department_name from employees e full outer join departments d on (e.department_id = d.department_id);
+
+select e.first_name, d.department_name from employees e right outer join departments d on (e.department_id = d.department_id);
+
+/*cartesian product*/
+
+select last_name, department_name from employees cross join departments;
+
+select * from departments;
+
+select first_name, last_name from employees where salary > (select salary from employees where last_name = 'Abel');
+
+
+/*single row subquery*/
+select last_name, job_id, salary from employees where job_id = (Select job_id from employees where employee_id = 141) and salary > (select salary from employees where employee_id = 143);
+
+select last_name, job_id, salary from employees where salary = (select Min(salary) from employees);
+
+select last_name, salary from employees where salary < (select avg(salary) from employees);
+
+select department_id, min(salary) from employees group by department_id having min(salary) > (select min(salary) from employees where department_id > 11);
+
+/* in any all */
+
+select employee_id, last_name, job_id, salary from employees where salary < any(select salary from employees where job_id = 'IT_PROG') and job_id <> 'IT_PROG';
+
+select employee_id, last_name, job_id, salary from employees where salary < all(select salary from employees where job_id = 'IT_PROG') and job_id <> 'IT_PROG';
+
+select employee_id, last_name, job_id, salary from employees where salary < all(select avg(salary) from employees);
+
+/*null values in a subquery*/
+
+select emp.last_name from employees emp where emp.employee_id not in (select mgr.manager_id from employees mgr);
+
+select manager_id from employees;
+
+
+select * from employees where manager_id is null;
+
+select distinct(manager_id) from employees;
+
+/*display the last name and department number of all employees in departments 20 and 50 in alphabetical order by name*/
+
+
+select last_name, department_id from employees where (department_id = 20 OR department_id = 50) order by 1;
+
+select last_name, hire_date from employees where hire_date like '%04';
+
+select last_name, salary, commission_pct from employees where (commission_pct is not null) order by salary desc, commission_pct desc;
+
+select last_name as name from employees where (last_name like '__a%');
+
+select last_name from employees where (last_name like '%a%' and last_name like '%e%');
+
+select last_name, job_id, salary from employees where job_id in ('SA_REP', 'ST_CLERK') and salary not in(2500, 3500, 7000);
+
+select initcap(last_name) as Name, length(last_name) as NameLength from employees where ((last_name like 'J%') or (last_name like 'A%') or (last_name like 'M%')) order by 1;
+
+select last_name as name, hire_date from employees;
+
+select last_name, Round(months_between(sysdate, hire_date),0) as months_worked from employees order by 2 desc;
+
+select last_name, department_id
+from employees where department_id = (select department_id from employees where last_name = 'Abel');
+
+select e.department_id as department, e.last_name as employee, c.last_name as colleague
+from employees e join employees c
+on (e.department_id = c.department_id)
+where e.employee_id <> c.employee_id
+order by e.department_id, e.last_name, c.last_name;
+
+select last_name, hire_date from employees where hire_date > (select hire_date from employees where last_name = 'Davies');
+
+select e.last_name as Employee, e.hire_date, m.hire_date as Employee_Hired, m.manager_id  from employees e join employees m on (e.manager_id = m.employee_id) where e.hire_date > m.hire_date;
+
+
+select e.employee_id, e.last_name, d.department_id, l.city from employees e join departments d on (e.department_id = d.department_id) join locations l on (d.location_id = l.location_id) where l.city like 'T%';
+
+select employee_id, last_name, department_id from employees where department_id in (Select department_id from departments where location_id in (select location_id from locations where city like 'T%'));
+
+select outer.last_name from employees outer where not exists ( select 'x' from employees inner where inner.manager_id = outer.employee_id);
+
+select outer.last_name from employees outer where outer.employee_id not in (select inner.manager_id from employees inner);
+
+select last_name, salary, hire_date from employees where salary in (select salary from employees where hire_date > '17-06-03' and department_id = 90);
+
+select max(salary) from employees;
+
+select last_name from employees as outer where exists (select 'X' from employees inner where inner.department_id = outer.department_id and inner.hire_date > outer.hire_date and inner.salary > outer.salary);
+
+select e.employee_id, e.last_name, d.department_id, d.department_name
+from employees e join departments d
+on (e.department_id = d.department_id);
+
+
+select employee_id, last_name, (select department_name from department d where e.department_id = d.department_id) department from employees order by departments;
+
+select sum(salary) from employees where department_id = 90;
+select count(distinct(department_id)) from employees;
+
+/*Write a query to display the department names of those departments whose total salary cost is above one-eighth (1/8)
+of the total salary cost of the whole company. 
+Use the with clause to write this query.
+name the query summary.
+*/
+
+select d.department_name from departments d, employees e where (salary > totalsal*(1/8));
+
+
+/*
+With query_name As
+(
+SQL query
+)
+SELECT * FROM query_name;
+*/
+
+select * from employees;
+
+
+with summary AS(
+select d.department_name, sum(e.salary) as dept_total from employees e, departments d where e.department_id = d.department_id group by d.department_name)
+select department_name, dept_total from summary where dept_total > (
+select sum(dept_total) * 1/8 from summary)
+order by dept_total desc;
+
+/*Union*/
+
+select employee_id, job_id from employees UNION select employee_id, job_id from job_history;
+
+select employee_id, job_id, department_id from employees UNION ALL select employee_id, job_id, department_id from job_history order by employee_id;
+
+select department_id, job_id from employees where employee_id = 200;
+
+
+/*Intersect*/
+select employee_id, job_id from employees intersect select employee_id, job_id from job_history;
+
+/*minus concerning first table, it removes the duplicates from the second table and fetches the result*/
+
+select employee_id, job_id from employees minus select employee_id, job_id from job_history;
+
+select  department_id, to_number(null) location, hire_date, manager_id from employees union select department_id, location_id, to_date(null), manager_id from departments;
+
+select * from locations
+;
+
+select to_number(null), location_id from locations union select location_id, department_id from departments;
+
+select employee_id, job_id, salary from employees union select employee_id, job_id, 0 from job_history;
+
+/*Controlling the Order of Rows*/
+
+column a_dummy Noprint
+select 'sing' as "My dream", 3 a_dummy from dual
+union
+select 'I''d like to teach', 1 a_dummy from dual
+union
+select 'the world to', 2 a_dummy from dual
+order by a_dummy;
+
+
+
+/* DATA MANIPULATION */
+
+insert into departments (department_id, department_name, manager_id, location_id) values (281, 'Public Relations', 100, 1700);
+
+insert into departments (department_id, department_name ) values (21, 'Purchasing');
+
+insert into departments values (101, 'Finance', null, null);
+
+rollback;
+
+--insert into employees (employee_id, first_name, last_name, phone_number, hire_date, job_id, salary, commission_pct, manager_id, department_id)
+--values (281, 'U.S', 'Polo', 'chai', '515.124.4567', sysdate, 'ac_account', 6900, null, 205, 100);
+
+
+
+
+desc employees;
+
+insert into employees values (290, 'Den', 'Raphealy', 'Drapheal', '515.127.4561', TO_DATE('Feb 3, 1999', 'MON DD, YYYY'), 'AC_ACCOUNT', 1100, null, 100, 30);
+select * from employees;
+
+insert into departments (department_id, department_name, location_id) values (&department_id, '&department_name', &location);
+
+select * from departments;
+
+/*copying rows from another table*/
+
+insert into sa_rep(id, name, salary, commission_pct) select employee_id, last_name, salary, commission_pct from employees where job_id like '%REP%';
+
+update employees set department_id = 70 where employee_id = 113;
+
+update copy_emp set department_id = 110;
+
+/*updating two columns with a subquery*/
+
+update employees set job_id = (select job_id from employees where employee_id = 205),
+salary = (select salary from employees where employee_id = 205) where employee_id = 114;
+
+select * from locations;
+
+delete from employees where department_id = (select department_id from departments where department_name like '%Public%');
+
+delete from employees where employee_id = 283;
+
+rollback;
+
+insert into locations values (1001, '1245 Gachibowli', 00987, 'Hyderabad', 'Deccan Hyderabad', 'IN');
+
+select * from locations order by location_id;
+
+select * from departments where location_id = 1001;
+
+select * from departments;
+
+update departments set department_id = 11, department_name = 'Marketing', Manager_id = 202 where location_id = 1001;
+
+delete from departments where  location_id = (select location_id from locations where city = 'Hy%');
+
+insert into (select employee_id, last_name, email, hire_date, job_id, salary, department_id from employees where department_id = 50) values (99999, 'Taylor', 'DTaylor', to_date('07-JUN-99', 'DD-Mon-RR'), 'ST_CLERK', 5000, 50);
+
+select * from employees where department_id = 50;
+
+update employees set first_name = 'Ross', phone_number = '650.232.5252' where last_name = 'Taylor';
+
+select * from employees where last_name = 'Taylor';
+
+update employees set first_name = 'Andre' where last_name = 'Taylor';
+
+savepoint update_done;
+
+
+rollback to update_done;
+
+rollback;
+
+delete from employees where employee_id = 99999;
+
+insert into departments values(290, 'Corporate Tax', null, 1700);
+
+create table nexwave
+(deptno number(2),
+dname varchar(23),
+loc varchar2(23),
+create_date date default sysdate);
+
+desc nexwave;
+
+select * from nexwave;
+
+select timestamp from dual;
+
+create table dept80 as
+select employee_id, last_name, salary*12 annsal, hire_date
+from employees
+where department_id = 80;
+
+desc dept80;
+
+create table copyemp as
+select * from employees;
+
+desc copyemp;
+
+delete from copyemp;
+
+rollback;
+
+desc copyemp;
+
+select * from copyemp;
+
+delete from copyemp where employee_id = 206;
+
+select * from copyemp order by employee_id desc;\
+
+rollback;
+
+select * from copyemp order by employee_id desc;
+
+create table user1 (
+user_id number(4) constraint user_id_pk Primary key,
+username varchar(22) constraint user_name_nn Not null,
+password varchar(8) constraint user_password check (password>8),
+email varchar2(25) constraint user_varchar_nn Not null,
+role_id number(6)
+);
+
+create table role (
+role_id number(6) constraint role_id_pk primary key,
+role_name varchar2(20) constraint role_name_nn not null
+);
+
+alter table user1 modify role_id number(6) constraint user_role_id_fk references role(role_id);
+
+desc user1;
+desc role;
+
+insert into role values(101, 'admin');
+
+insert into role values(102, 'manager');
+
+insert into role values(103, 'user');
+
+savepoint row_inserted;
+
+select * from role;
+
+select * from role order by 1;
+
+select role_id from role where role_name is not null;
+
+desc user1;
+
+insert into user1 values( 201, 'Chaitanya', 89785, 'chaitanya@gmail.com', 101);
+insert into user1 values( 202, 'Krishna', 86852, 'chai@gmail.com', 103);
+insert into user1 values( 203, 'Murali', 52031, 'chait@gmail.com', 102);
+insert into user1 values( 204, 'Radhanath', 98874, 'cha123@gmail.com', 101);
+insert into user1 values( 205, 'Govind', 15201, 'chai123@gmail.com', 103);
+insert into user1 values( 206, 'Shankar', 32105, 'chaitanya12@gmail.com', 102);
+
+select * from user1;
+
+select * from role;
+
+alter table user1 modify password varchar(8) constraint user_pswd check (length(password)>8);
+
+alter table role add privs varchar2(12);
+desc role;
+
+alter table user1 add contact_number number(12) constraint user_contact_un unique;
+
+desc user1;
+
+update user1 set contact_number = 8965355526 where user_id = 201;
+
+update user1 set contact_number = 8785456245 where user_id = 202;
+
+update user1 set contact_number = 8945214500 where user_id = 203;
+
+update user1 set contact_number = 8654114405 where user_id = 204;
+
+update user1 set contact_number = 8521582125 where user_id = 205;
+
+update user1 set contact_number = 8096779998 where user_id = 206;
+
+select * from user1;
+
+create view empvu34
+as select employee_id, last_name, salary from employees where department_id = 80;
+
+desc empvu34;
+
+select * from empvu34;
+
+create or replace view empvu34 (id_number, name, sal, department_id) as select employee_id, first_name || ' ' || last_name, salary, department_id from employees where department_id = 80;
+
+/*complex view creation*/
+
+Create or replace view dept_sum_vu 
+(name, minsal, maxsal, avgsal) as 
+select d.department_name, min(e.salary), max(e.salary), avg(e.salary) 
+from employees e join departments d 
+on (e.department_id = d.department_id) 
+group by d.department_name;
+
+
+create or replace view empvu20
+as select *
+from employees where department_id = 20 with check option constraint empvu20_ck;
+
+desc empvu20;
+
+drop view empvu20;
+
+create or replace view empvu20
+as select *
+from employees where department_id = 20;
+
+update empvu20 set first_name = 'Mahesh' where department_id = 20;
+
+create or replace view empvu10
+(employee_number, employee_name, job_title)
+as select employee_id, last_name, job_id
+from employees
+where department_id = 10
+with read only;
+
+create sequence dept_depti9_seq
+increment by 10
+start with 120
+maxvalue 9999
+nocache
+nocycle;
+
+create sequence user1_seq
+increment by 1
+start with 1001
+maxvalue 1100
+nocache
+nocycle;
+
+insert into user1 values (user1_seq.nextval, 'ChaitanyaMohite', 56542, 'chaitanyamohi03', 102, 8223641253);
+
+select user1_seq.currval from dual;
+
+insert into user1 values (user1_seq.nextval, 'SChaitanyaM', 56548, 'chaitanyamohi33', 101, 8223641254);
+
+select user1_seq.currval from dual;
+
+insert into role values (user1_seq.nextval, 'supervisor', 'yes');
+
+select * from role;
+
+
+select user1_seq.currval from dual;
+
+create index emp_last_name_idx on employees (last_name);
+
+create synonym d_sum for dept_sum_vu;
+
+drop synonym d_sum;
+
+desc dictionary;
+
+select * from dictionary where table_name = 'USER_OBJECTS';
+
+select object_name, object_type, created, status from user_objects order by object_type;
+
+select table_name from user_tables;
+
+select column_name, data_type, data_length, data_precision, data_scale, nullable from user_tab_columns where table_name = 'USER1';
+
+SELECT constraint_name, constraint_type, search_condition, r_constraint_name, delete_rule, status from user_constraints where table_name = 'EMPLOYEES';
+
+desc user_cons_columns
+
+select constraint_name, column_name from user_cons_columns where table_name = 'EMPLOYEES';
+
+DESC USER_views;
+
+select distinct view_name from user_views;
+
+select text from user_views where view_name = 'EMP_DETAILS_VIEW';
+
+select sequence_name, min_value, max_value, increment_by, last_number from user_sequences;
+
+select * from user_synonyms;
+
+desc user_synonyms;
+
+comment on table employees is 'employee information';
+
+select * from user_tab_comments;
