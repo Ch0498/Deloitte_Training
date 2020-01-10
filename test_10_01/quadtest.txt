@@ -1,0 +1,34 @@
+#
+
+# Taking an input from user..
+
+# impose it into quadratic equation
+
+# and get the root of the equation.
+
+
+
+#
+
+import cmath  #cmath is the library with mathematical functions in python
+
+a = eval(input('Enter first value: \n'))
+b = eval(input('Enter second value: \n'))
+c = eval(input('Enter third value: \n'))
+print('\n')
+
+# calculate b^2 - 4ac
+
+d = (b**2) - (4*a*c)
+
+# calculate the roots
+
+sqrt1 = ((-b) - cmath.sqrt(d)) / (2*a)
+
+sqrt2 = ((-b) + cmath.sqrt(d)) / (2*a)
+
+
+print ('The value of b^2 - 4ac is ', d, '\n')
+
+print ('The first root is :', sqrt1, '\n')
+print ('The second root is :', sqrt2, '\n')
